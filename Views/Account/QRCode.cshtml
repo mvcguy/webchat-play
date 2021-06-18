@@ -1,0 +1,12 @@
+<div id="qrcode"></div>
+
+
+@section Scripts
+{
+
+<script src="~/lib/qrcodejs/qrcode.js"></script>
+
+<script type="text/javascript">
+    new QRCode(document.getElementById("qrcode"), '@Html.Raw("https://shahid.ali.com")');
+</script>
+}

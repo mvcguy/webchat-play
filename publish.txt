@@ -1,0 +1,1 @@
+dotnet publish --self-contained -o "C:\Users\xyz\dev\WebChatPlay-published" -r win-x64

@@ -1,0 +1,15 @@
+TODO:
+
+1. Show a green marker in front of userid currently in chat
+2. show the selected user below, so when he is typing, its more visible
+
+3. optmize ajax calls, use browser cache (chat, friend-list, and other get calls)
+4. Use redirect/interceptor to make sure session is not expired
+
+5. Get selected user has issue. There are two places where this info is stored at the moment.
+    a. ReceiverInput text field
+    b. Message list data prop.
+ This needs to solved. Refactor the code and keep the data in one place!!
+
+6. Cache sent messages
+7. The message counter badge is not updated properly when the screen is reloaded or user is signed in again.

@@ -1,0 +1,171 @@
+﻿@{
+    ViewData["Title"] = "Web chat";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4 menu-display">
+            <div class="friends-menu-toggle">
+                <button id="friendsMenuToggler" class="navbar-toggler" type="button">
+                    <i class="fa fa-bars friends-menu-icon" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-8 user-display">
+            <span id="selectedUserDisplay" style="font-weight: bold;display:none;"></span>
+            <span id="userTypingMarker" style="font-style: italic;display:none;"></span>
+            <span id="userTypingMarkerFormat" style="display:none;"> is typing ...</span>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-4 friends-menu show-friend-list">
+            <input class="form-control" type="hidden" id="receiverInput" />
+            <div class="list-group" id="recepientList">
+                <a id='recepientItemTemplate' style="display: none;" data-id="username"
+                    class="list-group-item list-group-item-action list-group-item-primary friends-item">
+                    <i id="userName_status" class="fa fa-circle-o" style="color: #28a745;"></i>
+                    <span id="fullname">Full name</span>
+                    <span id='userName_badge' class="badge badge-primary badge-pill"></span>
+                </a>
+            </div>
+
+        </div>
+        <div class="col-8 chat-section hide-chat-window" style="height: 100%;">
+            <input class="form-control" type="hidden" id="senderInput" value="@User.Identity.Name" />
+
+            <div class="row">
+                <div class="col-12">
+                    <div id="chatMessageTemplate" style="display: none;"></div>
+                    <i id="chatMessageDeliveredMarker" style="display: none;"
+                        class="fa fa-check-circle chat-message-delivered-marker"></i>
+                    <div class="chat-box">
+                        <div data-selecteduser="" style="overflow-y:auto;overflow-x:hidden;padding:10px"
+                            id="messagesList"> </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row form-group" style="margin-top: 10px;">
+                <form class="form-fullsize" asp-controller="Home" asp-action="SendMessage">
+
+                    <div class="col-12">
+                        <input placeholder="type message" class="form-control" style="float: left;width:86%" type="text"
+                            id="messageInput" />
+                        <button class="btn btn-primary" style="float: right;" id="sendButton"><i
+                                class="fa fa-send">&nbsp;</i></button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts
+{
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/constants.js" asp-append-version="true"></script>
+<script src="~/js/services/hubService.js" asp-append-version="true"></script>
+<script src="~/js/controllers/homeController.js" asp-append-version="true"></script>
+<script src="~/js/actions/endpoints.js" asp-append-version="true"></script>
+<script src="~/js/controllers/homeControllerDom.js" asp-append-version="true"></script>
+<script src="~/js/services/browserCacheService.js" asp-append-version="true"></script>
+
+<script src="~/js/services/dateTimeService.js" asp-append-version="true"></script>
+
+
+
+<script>
+    "use strict";
+
+
+    (function (root) {
+
+
+        $(document).ready(function () {
+
+
+            var baseUrl = "@Url.Action("Index", "Home")";
+            var hubUrl = baseUrl + "messagingHub";
+            var endpoints = new root.endpoints(baseUrl, hubUrl);
+            var hubService = root.hubService.create(endpoints);
+            var homeController = root.homeController
+                .create(hubService, endpoints, root.homeControllerDom.create());
+
+            //Disable send button until connection is established
+            homeController.dom.sendButton.attr('disabled', 'disabled');
+
+            //
+            // register event handler for the send button
+            //
+            homeController.dom.sendButton.on("click", function (e) {
+                e.preventDefault();
+                homeController.sendMessage();
+                homeController.dom.messageInput.val('');
+                homeController.notifyUserTyping(false);
+            });
+
+            //
+            // If the user is logged in, load the friends list, set up hub connection and subscribe to chat
+            //
+
+            var userName = homeController.getCurrentUser();
+            if (userName) {
+                homeController.onUserLoggedIn(userName);
+            }
+
+            homeController.dom.messageInput.on("keypress", function (e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                    homeController.sendMessage();
+                    $(this).val('');
+                    homeController.notifyUserTyping(false);
+                }
+                else {
+
+                    //
+                    // nofity the other user that the current user is typing
+                    //
+                    homeController.notifyUserTyping(true);
+                }
+
+            });
+
+            homeController.dom.messageInput.on('focusout', function (e) {
+                homeController.notifyUserTyping(false);
+            });
+
+            homeController.dom.messageInput.on('focus', function (e) {
+                //
+                // clear the counter badge
+                //
+                var user = homeController.getSelectedUser();
+                homeController.clearMessageCounterBadge(user);
+            });
+
+            homeController.dom.recepientList.on('click', 'a', function (e) {
+                var target = $(e.currentTarget);
+                var selectedUser = target.data('id');
+                $('#' + $.escapeSelector(selectedUser) + '_badge').text('');
+                target.addClass('active').siblings().removeClass('active');
+                homeController.onFriendSelected(selectedUser);
+
+                $('.friends-menu').removeClass('show-friend-list');
+                $('.chat-section').removeClass('hide-chat-window');
+            });
+
+            $('#friendsMenuToggler').on('click', function (e) {
+                $('.friends-menu').toggleClass('show-friend-list');
+                $('.chat-section').toggleClass('hide-chat-window');
+            });
+        });
+
+    }(window));
+</script>
+
+}
