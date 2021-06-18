@@ -1,3 +1,8 @@
+@{
+    ViewData["Title"] = "QR code";
+}
+
+
 <div id="qrcode"></div>
 
 
@@ -7,6 +12,6 @@
 <script src="~/lib/qrcodejs/qrcode.js"></script>
 
 <script type="text/javascript">
-    new QRCode(document.getElementById("qrcode"), '@Html.Raw("https://shahid.ali.com")');
+    new QRCode(document.getElementById("qrcode"), '@Html.Raw("https://moniba.azurewebsites.net")');
 </script>
 }

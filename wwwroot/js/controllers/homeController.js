@@ -352,9 +352,9 @@
                 //
                 // serve messages from local cache first
                 //
-
+                var _this = this;
                 if (this.useCache) {
-                    var _this = this;
+                    
                     var key = _this.getChatCacheKey(userName, friendsName);
                     var messages = _this.cacheService.getItem(key);
                     if (messages) {
