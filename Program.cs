@@ -16,16 +16,32 @@ namespace WebChatPlay
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args) 
+        {
+
+            return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseKestrel(options =>
-                    {
-                        options.ListenAnyIP(5000, (c)=>{
-                            c.UseHttps();
-                        });
-                    }).UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>();
                 });
+
+            //
+            // for local env 
+            // TODO: use a flag to switch code
+            //
+            // return Host.CreateDefaultBuilder(args)
+            //     .ConfigureWebHostDefaults(webBuilder =>
+            //     {
+            //         webBuilder.UseKestrel(options =>
+            //         {
+            //             options.ListenAnyIP(5000, (c)=>{
+            //                 c.UseHttps();
+            //             });
+            //         }).UseStartup<Startup>();
+            //     });
+
+        }
+            
+            
     }
 }

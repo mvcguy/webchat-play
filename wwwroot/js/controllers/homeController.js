@@ -24,6 +24,7 @@
                 this.isUserTypingFlag = false;
                 this.cacheService = new browserCacheService();
                 this.cacheService.removeAll(HomeController.chatPrefix);
+                this.useCache = false;
             }
 
             static chatPrefix = "chat-";
@@ -351,17 +352,18 @@
                 //
                 // serve messages from local cache first
                 //
-                var _this = this;
-                var key = _this.getChatCacheKey(userName, friendsName);
-                var messages = _this.cacheService.getItem(key);
-                if (messages) {
-                    callback(messages);
-                    console.log('messages fetched from local cache');
-                    return;
+
+                if (this.useCache) {
+                    var _this = this;
+                    var key = _this.getChatCacheKey(userName, friendsName);
+                    var messages = _this.cacheService.getItem(key);
+                    if (messages) {
+                        callback(messages);
+                        console.log('messages fetched from local cache');
+                        return;
+                    }
                 }
-
-
-
+                
                 //
                 // load from server and store in cache
                 //
